@@ -5,6 +5,11 @@
             <iconBin binColor='black' />
         </div>
       </div>
+      <div v-if="binCollection.collecting == 'blue'">
+          <div class="rounded-full w-52 h-52 bg-white flex items-center place-content-around">
+            <iconBin binColor='#1e40af' />
+        </div>
+      </div>
       <div v-else-if="binCollection.collecting == 'blue and brown'" class="flex flex-wrap justify-center">
         <div class="m-2 rounded-full w-52 h-52 bg-white flex items-center place-content-around">
             <iconBin binColor='#1e40af' />
