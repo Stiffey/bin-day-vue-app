@@ -1,55 +1,48 @@
 <template>
-
   <TransitionRoot appear :show="isOpen" as="template">
     <Dialog as="div" @close="closeModal" class="relative z-10">
-      <TransitionChild
-        as="template"
-        enter="duration-300 ease-out"
-        enter-from="opacity-0"
-        enter-to="opacity-100"
-        leave="duration-200 ease-in"
-        leave-from="opacity-100"
-        leave-to="opacity-0"
-      >
+      <TransitionChild as="template" enter="duration-300 ease-out" enter-from="opacity-0" enter-to="opacity-100"
+        leave="duration-200 ease-in" leave-from="opacity-100" leave-to="opacity-0">
         <div class="fixed inset-0 bg-black/25" />
       </TransitionChild>
 
       <div class="fixed inset-0 overflow-y-auto">
-        <div
-          class="flex min-h-full items-center justify-center p-4 text-center"
-        >
-          <TransitionChild
-            as="template"
-            enter="duration-300 ease-out"
-            enter-from="opacity-0 scale-95"
-            enter-to="opacity-100 scale-100"
-            leave="duration-200 ease-in"
-            leave-from="opacity-100 scale-100"
-            leave-to="opacity-0 scale-95"
-          >
+        <div class="flex min-h-full items-center justify-center p-4 text-center">
+          <TransitionChild as="template" enter="duration-300 ease-out" enter-from="opacity-0 scale-95"
+            enter-to="opacity-100 scale-100" leave="duration-200 ease-in" leave-from="opacity-100 scale-100"
+            leave-to="opacity-0 scale-95">
             <DialogPanel
-              class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
-            >
-              <DialogTitle
-                as="h3"
-                class="text-lg font-medium leading-6 text-gray-900 text-center"
-              >
+              class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+              <DialogTitle as="h3" class="text-lg font-bold leading-6 text-orange-600 text-center">
                 Upcoming collections
               </DialogTitle>
               <div class="my-5">
-                <p class="text-sm text-gray-500">
-                  <div v-for="(value, key) in binCollectionAll">
-                    {{ key }}: {{ value }}
+                <p class="text-sm text-slate-600">
+                <div v-for="(value, key) in binCollectionAll" class="pb-3 flex">
+                  <div class="flex w-8/12 items-center pr-3">
+                    <span class="font-semibold text-base sm:text-lg">{{ formatDate(value.date) }}</span>
                   </div>
+                  <div class="flex items-center">
+                    <div v-for="bin in value.collecting" class="">
+                      <div v-if="bin == 'Refuse Collection Service'">
+                        <iconBin_sm binColor='black' />
+                      </div>
+                      <div v-if="bin == 'Recycling Collection Service'">
+                        <iconBin_sm binColor='#1e40af' />
+                      </div>
+                      <div v-if="bin == 'Garden Waste Collection Service'">
+                        <iconBin_sm binColor='brown' />
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 </p>
               </div>
 
               <div class="mt-4 text-center">
-                <button
-                  type="button"
+                <button type="button"
                   class="inline-flex justify-center rounded-md border border-transparent bg-orange-100 px-4 py-2 text-sm font-medium text-orange-900 hover:bg-orange-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
-                  @click="closeModal"
-                >
+                  @click="closeModal">
                   Got it, thanks!
                 </button>
               </div>
@@ -66,22 +59,17 @@
       <div class="mx-auto max-w-xl pt-3">
         <bins :binCollection=binCollection />
       </div>
-        <div class="flex items-center justify-center mt-6">
-          <button
-            type="button"
-            @click="openModal"
-            class="rounded-md bg-slate-700 px-3 py-2 text-sm font-medium text-slate-100 hover:bg-orange-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
-          >
-            View upcoming collections
-          </button>
-        </div>
+      <div class="flex items-center justify-center mt-6">
+        <button type="button" @click="openModal"
+          class="rounded-md bg-slate-700 px-3 py-2 text-sm font-medium text-slate-100 hover:bg-orange-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
+          View upcoming collections
+        </button>
+      </div>
       <div class="text-xs max-w-xl text-gray-300 mx-auto text-center">
         <Footer :binCollection=binCollection />
       </div>
     </div>
   </div>
-
-
 </template>
 
 <script setup>
@@ -89,6 +77,7 @@ const props = defineProps(['binCollection'])
 import Title from './Title.vue'
 import Footer from './Footer.vue'
 import bins from './Bins.vue'
+import iconBin_sm from './icons/iconBin_sm.vue'
 import { ref, onMounted } from 'vue'
 
 
@@ -109,6 +98,10 @@ const getUpcomingCollections = async () => {
 }
 
 
+function formatDate(date) {
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(date).toLocaleDateString('en-GB', options);
+    }
 
 import {
   TransitionRoot,
