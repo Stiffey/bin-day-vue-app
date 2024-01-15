@@ -1,27 +1,21 @@
 <template>
-  <div class="flex no-wrap justify-center">
-    <div v-if="binCollection.collecting">
-      <div v-if="binCollection.collecting == 'black'">
-        <div class="rounded-full w-52 h-52 bg-white flex items-center place-content-around">
-          <iconBin binColor='black' />
+  <div>
+    <div v-if="binCollection" class="flex justify-center flex-wrap">
+      <div v-for="bin in binCollection" class="p-2">
+        <div v-if="bin == 'black'">
+          <div class="rounded-full w-52 h-52 bg-white flex items-center place-content-around">
+            <iconBin binColor='black' />
+          </div>
         </div>
-      </div>
-      <div v-if="binCollection.collecting == 'blue'">
-        <div class="rounded-full w-52 h-52 bg-white flex items-center place-content-around">
-          <iconBin binColor='#1e40af' />
+        <div v-if="bin == 'blue'">
+          <div class="rounded-full w-52 h-52 bg-white flex items-center place-content-around">
+            <iconBin binColor='#1e40af' />
+          </div>
         </div>
-      </div>
-      <div v-if="binCollection.collecting == 'brown'">
-        <div class="rounded-full w-52 h-52 bg-white flex items-center place-content-around">
-          <iconBin binColor='#brown' />
-        </div>
-      </div>
-      <div v-if="binCollection.collecting == 'blue and brown'" class="flex flex-wrap justify-center">
-        <div class="m-2 rounded-full w-52 h-52 bg-white flex items-center place-content-around">
-          <iconBin binColor='#1e40af' />
-        </div>
-        <div class="m-2 rounded-full w-52 h-52 bg-white flex items-center place-content-around">
-          <iconBin binColor='brown' />
+        <div v-if="bin == 'brown'">
+          <div class="rounded-full w-52 h-52 bg-white flex items-center place-content-around">
+            <iconBin binColor='brown' />
+          </div>
         </div>
       </div>
     </div>

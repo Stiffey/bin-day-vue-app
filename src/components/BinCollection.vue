@@ -20,17 +20,17 @@
                 <p class="text-sm text-slate-600">
                 <div v-for="(value, key) in binCollectionAll" class="pb-3 flex">
                   <div class="flex w-8/12 items-center pr-3">
-                    <span class="font-semibold text-base sm:text-lg">{{ formatDate(value.date) }}</span>
+                    <span class="font-semibold text-base sm:text-lg">{{ formatDate(key) }}</span>
                   </div>
                   <div class="flex items-center">
-                    <div v-for="bin in value.collecting" class="">
-                      <div v-if="bin == 'Refuse Collection Service'">
+                    <div v-for="bin in value" class="">
+                      <div v-if="bin == 'black'">
                         <iconBin_sm binColor='black' />
                       </div>
-                      <div v-if="bin == 'Recycling Collection Service'">
+                      <div v-if="bin == 'blue'">
                         <iconBin_sm binColor='#1e40af' />
                       </div>
-                      <div v-if="bin == 'Garden Waste Collection Service'">
+                      <div v-if="bin == 'brown'">
                         <iconBin_sm binColor='brown' />
                       </div>
                     </div>
@@ -55,9 +55,9 @@
 
   <div class="md:container mx-auto p-4 max-w-lg font-sans flex h-screen items-center">
     <div class="m-auto">
-      <Title :binCollection=binCollection></Title>
+      <Title :binCollection=nextBinCollectionDate></Title>
       <div class="mx-auto max-w-xl pt-3">
-        <bins :binCollection=binCollection />
+        <bins :binCollection=upcomingBinCollection />
       </div>
       <div class="flex items-center justify-center mt-6">
         <button type="button" @click="openModal"
@@ -73,35 +73,76 @@
 </template>
 
 <script setup>
-const props = defineProps(['binCollection'])
+/*
+  Imports
+*/
 import Title from './Title.vue'
 import Footer from './Footer.vue'
 import bins from './Bins.vue'
 import iconBin_sm from './icons/iconBin_sm.vue'
 import { ref, onMounted } from 'vue'
+import {
+    collection, limit,
+    getDocs, query, orderBy
+  }
+  from 'firebase/firestore'
+import { db } from '@/firebase'
 
 
-const binCollection = ref([])
-const binCollectionAll = ref()
+/* 
+  Data
+*/
+const binCollection = ref([]) // Raw data from Firestore
+const binCollectionAll = ref([]) // Upcoming collections
+const nextBinCollectionDate = ref(null); // Next collection date for title
+const upcomingBinCollection = ref(null); // Date last updated
 
-
-
-const getBinDetails = async () => {
-  const upcomingBinCollectionResponse = await fetch("https://bin-day-api-kkz22a27ra-ew.a.run.app");
-  binCollection.value = await upcomingBinCollectionResponse.json()
+/*
+Get the Firestore data with a query
+*/
+onMounted(async () => {
+  const q = query(collection(db, "binUpdates"), orderBy("updated", "desc"), limit(1));
+  const querySnapshot = await getDocs(q);
+  if (!querySnapshot.empty) {
+    binCollection.value = querySnapshot.docs[0].data();
+  }
+  getBinDetails()
+  getUpcomingCollections()
 }
+)
+
+// Get the next collection data
+const getBinDetails = async () => {
+  const nextCollection = binCollection.value.collections
+
+  if (nextCollection) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);  // Set the time to 00:00:00
+
+    const futureDates = Object.keys(nextCollection)
+      .map(date => new Date(date))
+      .filter(date => date > today)
+      .sort((a, b) => a - b);
+      
+      if (futureDates.length > 0) {
+        const nextDate = futureDates[0];
+        nextBinCollectionDate.value = formatDate(nextDate);
+        upcomingBinCollection.value = nextCollection[nextDate.toISOString().split('T')[0]];  
+      }
+}}
+
 
 const getUpcomingCollections = async () => {
-  const upcomingBinCollectionResponseAll = await fetch("https://bin-day-api-kkz22a27ra-ew.a.run.app/all");
-  // const upcomingBinCollectionResponseAll = await fetch("http://127.0.0.1:5000/all");
-  binCollectionAll.value = await upcomingBinCollectionResponseAll.json()
+  binCollectionAll.value = Object.fromEntries(
+    Object.entries(binCollection.value.collections).sort()
+  );
 }
 
 
 function formatDate(date) {
-      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      return new Date(date).toLocaleDateString('en-GB', options);
-    }
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  return new Date(date).toLocaleDateString('en-GB', options);
+}
 
 import {
   TransitionRoot,
@@ -119,9 +160,5 @@ function closeModal() {
 function openModal() {
   isOpen.value = true
 }
-
-
-await getBinDetails()
-await getUpcomingCollections()
 
 </script>
